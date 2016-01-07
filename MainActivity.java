@@ -3,6 +3,12 @@ package jav.accelerator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+import android.view.View.OnClickListener;
+import android.widget.CheckBox;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
@@ -11,9 +17,13 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener{
 
-    //Initieer variabelen
+    private CheckBox fBox;
+    private CheckBox tBox;
+    private TextView textView;
+    private boolean timer = false;
+    private OnClickListener checkBoxListener;
 
-private TextView textX, textY, textZ;
+    private TextView textX, textY, textZ;
     private Sensor mySensor;
     private SensorManager SM;
     private  int score;
@@ -22,10 +32,43 @@ private TextView textX, textY, textZ;
     private boolean changedLeft;
     private boolean changedRight = true;
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        fBox = (CheckBox) findViewById(R.id.freeplay_checkBox);
+        tBox = (CheckBox) findViewById(R.id.timetrial_checkBox);
+
+        checkBoxListener = new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                textView = (TextView) findViewById(R.id.mode_textView);
+                textView.setText("I'm playing");
+
+                if (tBox.isChecked()) {
+                    textView.setText(textView.getText().toString() + " " + tBox.getText().toString());
+                    fBox.setChecked(false);
+                    timer = true;
+                }
+
+                else if (fBox.isChecked()) {
+                    textView.setText(textView.getText().toString() + " " + fBox.getText().toString());
+                    tBox.setChecked(false);
+                    timer = false;
+                }
+            }
+        };
+
+        if(timer == true)
+        {
+
+        }
+
+        fBox.setOnClickListener(checkBoxListener);
+        tBox.setOnClickListener(checkBoxListener);
+
 
         //Create sensor manager
         SM = (SensorManager)getSystemService(SENSOR_SERVICE);
@@ -47,7 +90,6 @@ private TextView textX, textY, textZ;
 
         textX.setText("X: " + event.values[0]);
 
-
         //Score management
         if (event.values[0] > 5 && changedRight == true) {
             left = true;
@@ -55,7 +97,6 @@ private TextView textX, textY, textZ;
             changedLeft = true;
             changedRight = false;
             score ++;
-
         }
 
         if (event.values[0] < -5 && changedLeft == true) {
@@ -64,14 +105,9 @@ private TextView textX, textY, textZ;
             changedRight = true;
             changedLeft = false;
             score++;
-
-
         }
 
         //End of Score management
-
-
-
 
         textY.setText("Score " +  score);
     }

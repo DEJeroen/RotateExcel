@@ -37,4 +37,33 @@
         android:id="@+id/textZ"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Freeplay"
+        android:id="@+id/freeplay_checkBox"
+        android:checked="true"
+        android:layout_below="@+id/mode_textView"
+        android:layout_alignLeft="@+id/timetrial_checkBox"
+        android:layout_alignStart="@+id/timetrial_checkBox" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Time Trial"
+        android:id="@+id/timetrial_checkBox"
+        android:layout_below="@+id/freeplay_checkBox"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Mode Select"
+        android:id="@+id/mode_textView"
+        android:layout_marginTop="67dp"
+        android:layout_below="@+id/textZ"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
