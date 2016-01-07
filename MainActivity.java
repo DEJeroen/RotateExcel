@@ -20,17 +20,17 @@ import android.hardware.SensorEventListener;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener{
 
-    private CheckBox fBox;
     private CheckBox tBox;
     private TextView textView;
     private boolean timer = false;
+    private boolean gameOver = false;
     private OnClickListener checkBoxListener;
 
+    private CountDownTimer countDown;
     private TextView textX, textY, textZ, time_textView;
     private Sensor mySensor;
     private SensorManager SM;
     private  int score;
-    private int time = 10;
     private  boolean left;
     private  boolean right;
     private boolean changedLeft;
@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        fBox = (CheckBox) findViewById(R.id.freeplay_checkBox);
         tBox = (CheckBox) findViewById(R.id.timetrial_checkBox);
 
         checkBoxListener = new OnClickListener() {
@@ -50,45 +49,45 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 textView = (TextView) findViewById(R.id.mode_textView);
                 textView.setText("I'm playing");
 
-                if (tBox.isChecked()) {
+                if (tBox.isChecked()==true) {
                     textView.setText(textView.getText().toString() + " " + tBox.getText().toString());
-                    fBox.setChecked(false);
                     timer = true;
+                    gameOver = false;
                 }
 
-                else if (fBox.isChecked()) {
-                    textView.setText(textView.getText().toString() + " " + fBox.getText().toString());
-                    tBox.setChecked(false);
+                else if (tBox.isChecked()==false) {
+                    textView.setText(textView.getText().toString() + " Freeplay");
                     timer = false;
+                    gameOver = true;
                     time_textView.setText("");
-                    time = 10;
+                    if(gameOver == true)
+                    {
+                        countDown.cancel();
+                    }
                 }
 
-                if(timer == true)
+                if(timer == true && tBox.isChecked())
                 {
                     score = 0;
-                    textY.setText("Score " +  score);
-                    time_textView.setText("seconds remaining: " +  time);
+                    textY.setText("Score " + score);
 
-                    new CountDownTimer(30000, 1000) {
 
-                        public void onTick(long millisUntilFinished) {
-                            if(timer == true) {
-                                time_textView.setText("seconds remaining: " + millisUntilFinished / 1000);
-                            }
-                        }
+                    countDown = new CountDownTimer(30000, 1000) {
 
-                        public void onFinish() {
-                            if(timer == true) {
-                                time_textView.setText("Time UP!");
-                            }
-                        }
-                    }.start();
-                }
+                    public void onTick(long millisUntilFinished) {
+
+                        time_textView.setText("seconds remaining: " + millisUntilFinished / 1000);
+                    }
+
+                    public void onFinish() {
+                        time_textView.setText("Time UP!");
+                        gameOver = true;
+                    }
+                        }.start();
+                 }
             }
         };
 
-        fBox.setOnClickListener(checkBoxListener);
         tBox.setOnClickListener(checkBoxListener);
 
         //Create sensor manager
@@ -112,23 +111,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         textX.setText("X: " + event.values[0]);
 
-        //Score management
-        if (event.values[0] > 5 && changedRight == true) {
-            left = true;
-            right = false;
-            changedLeft = true;
-            changedRight = false;
-            score ++;
-        }
+        if(gameOver == false || timer == false) {
 
-        if (event.values[0] < 1 && changedLeft == true) {
-            right = true;
-            left = false;
-            changedRight = true;
-            changedLeft = false;
-            score++;
-        }
+            //Score management
+            if (event.values[0] > 5 && changedRight == true) {
+                left = true;
+                right = false;
+                changedLeft = true;
+                changedRight = false;
+                score++;
+            }
 
+            if (event.values[0] < 1 && changedLeft == true) {
+                right = true;
+                left = false;
+                changedRight = true;
+                changedLeft = false;
+                score++;
+            }
+        }
         //End of Score management
 
         textY.setText("Score " +  score);
