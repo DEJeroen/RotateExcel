@@ -5,6 +5,10 @@ import android.os.Bundle;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.widget.Button;
+
+import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
@@ -13,7 +17,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener{
 
@@ -23,15 +26,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean timer = false;
     private OnClickListener checkBoxListener;
 
-    private TextView textX, textY, textZ;
+    private TextView textX, textY, textZ, time_textView;
     private Sensor mySensor;
     private SensorManager SM;
     private  int score;
+    private int time = 10;
     private  boolean left;
     private  boolean right;
     private boolean changedLeft;
     private boolean changedRight = true;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,18 +60,36 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     textView.setText(textView.getText().toString() + " " + fBox.getText().toString());
                     tBox.setChecked(false);
                     timer = false;
+                    time_textView.setText("");
+                    time = 10;
+                }
+
+                if(timer == true)
+                {
+                    score = 0;
+                    textY.setText("Score " +  score);
+                    time_textView.setText("seconds remaining: " +  time);
+
+                    new CountDownTimer(30000, 1000) {
+
+                        public void onTick(long millisUntilFinished) {
+                            if(timer == true) {
+                                time_textView.setText("seconds remaining: " + millisUntilFinished / 1000);
+                            }
+                        }
+
+                        public void onFinish() {
+                            if(timer == true) {
+                                time_textView.setText("Time UP!");
+                            }
+                        }
+                    }.start();
                 }
             }
         };
 
-        if(timer == true)
-        {
-
-        }
-
         fBox.setOnClickListener(checkBoxListener);
         tBox.setOnClickListener(checkBoxListener);
-
 
         //Create sensor manager
         SM = (SensorManager)getSystemService(SENSOR_SERVICE);
@@ -83,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         textX = (TextView) findViewById(R.id.textX);
         textY = (TextView) findViewById(R.id.textY);
         textZ = (TextView) findViewById(R.id.textZ);
+        time_textView = (TextView) findViewById(R.id.time_textView);
     }
 
     @Override
@@ -99,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             score ++;
         }
 
-        if (event.values[0] < -5 && changedLeft == true) {
+        if (event.values[0] < 1 && changedLeft == true) {
             right = true;
             left = false;
             changedRight = true;
