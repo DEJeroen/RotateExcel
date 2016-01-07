@@ -1,5 +1,6 @@
 package jav.accelerator;
 
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -21,18 +22,15 @@ import android.hardware.SensorEventListener;
 public class MainActivity extends AppCompatActivity implements SensorEventListener{
 
     private CheckBox tBox;
-    private TextView textView;
-    private boolean timer = false;
-    private boolean gameOver = false;
     private OnClickListener checkBoxListener;
-
     private CountDownTimer countDown;
-    private TextView textX, textY, textZ, time_textView;
+    private TextView textX, textY, textZ, time_textView, textView, highscore_textView;
     private Sensor mySensor;
     private SensorManager SM;
-    private  int score;
-    private  boolean left;
-    private  boolean right;
+    private  int score, scoreSpot;
+    private  boolean left, right;
+    private boolean timer = false;
+    private boolean gameOver = false;
     private boolean changedLeft;
     private boolean changedRight = true;
 
@@ -43,16 +41,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tBox = (CheckBox) findViewById(R.id.timetrial_checkBox);
 
         checkBoxListener = new OnClickListener() {
+            MediaPlayer vibes = MediaPlayer.create(MainActivity.this, R.raw.tripvibesrickdickert);
 
             @Override
             public void onClick(View v) {
                 textView = (TextView) findViewById(R.id.mode_textView);
                 textView.setText("I'm playing");
+                vibes.start();
 
                 if (tBox.isChecked()==true) {
                     textView.setText(textView.getText().toString() + " " + tBox.getText().toString());
                     timer = true;
                     gameOver = false;
+                    vibes.pause();
                 }
 
                 else if (tBox.isChecked()==false) {
@@ -60,31 +61,57 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     timer = false;
                     gameOver = true;
                     time_textView.setText("");
-                    if(gameOver == true)
-                    {
+                    vibes.start();
+
+                    if(gameOver == true) {
                         countDown.cancel();
                     }
                 }
 
-                if(timer == true && tBox.isChecked())
-                {
+                if(timer == true && tBox.isChecked()) {
                     score = 0;
                     textY.setText("Score " + score);
-
 
                     countDown = new CountDownTimer(30000, 1000) {
 
                     public void onTick(long millisUntilFinished) {
-
                         time_textView.setText("seconds remaining: " + millisUntilFinished / 1000);
                     }
 
                     public void onFinish() {
                         time_textView.setText("Time UP!");
                         gameOver = true;
+
+
+
+                        highscore_textView = (TextView) findViewById(R.id.highscore_textView);
+                        highscore_textView.setText( scoreSpot + ": " + score);
+
+
+                        if(score > 50) {
+
+                        }
+                        else if(score > 40) {
+
+                        }
+                        else if(score > 30) {
+
+                        }
+                        else if(score > 20) {
+                            MediaPlayer woohoo = MediaPlayer.create(MainActivity.this, R.raw.woohoo);
+                            woohoo.start();
+                        }
+                        else if(score > 10) {
+                            MediaPlayer laugh = MediaPlayer.create(MainActivity.this, R.raw.laugh);
+                            laugh.start();
+                        }
+                        else {
+                            MediaPlayer booo = MediaPlayer.create(MainActivity.this, R.raw.boooo);
+                            booo.start();
+                        }
                     }
-                        }.start();
-                 }
+                    }.start();
+                }
             }
         };
 
@@ -108,11 +135,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-
         textX.setText("X: " + event.values[0]);
 
         if(gameOver == false || timer == false) {
-
             //Score management
             if (event.values[0] > 5 && changedRight == true) {
                 left = true;
@@ -120,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 changedLeft = true;
                 changedRight = false;
                 score++;
+                scoreSound();
             }
 
             if (event.values[0] < 1 && changedLeft == true) {
@@ -128,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 changedRight = true;
                 changedLeft = false;
                 score++;
+                scoreSound();
             }
         }
         //End of Score management
@@ -135,6 +162,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         textY.setText("Score " +  score);
     }
 
+    public void scoreSound()
+    {
+        if(score > 50) {
+            MediaPlayer gunshot = MediaPlayer.create(MainActivity.this, R.raw.gunshot);
+            gunshot.start();
+        }
+        else if(score > 40) {
+            MediaPlayer gunshot = MediaPlayer.create(MainActivity.this, R.raw.gunshot);
+            gunshot.start();
+        }
+        else if(score > 30) {
+            MediaPlayer gunshot = MediaPlayer.create(MainActivity.this, R.raw.gunshot);
+            gunshot.start();
+        }
+        else if(score > 20) {
+            MediaPlayer guncock = MediaPlayer.create(MainActivity.this, R.raw.guncock);
+            guncock.start();
+        }
+        else if(score > 10) {
+            MediaPlayer punch = MediaPlayer.create(MainActivity.this, R.raw.punch);
+            punch.start();
+        }
+        else {
+            MediaPlayer point = MediaPlayer.create(MainActivity.this, R.raw.ding);
+            point.start();
+        }
+    }
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 //gebruiken we niet, is voor error weg te halen als deze er niet is
