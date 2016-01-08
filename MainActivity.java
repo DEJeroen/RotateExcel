@@ -4,11 +4,9 @@ import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.os.Handler;
 import android.widget.Button;
 
+import java.util.ArrayList;
 import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.TextView;
@@ -21,13 +19,15 @@ import android.hardware.SensorEventListener;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener{
 
+    public Multiplayer mp = new Multiplayer();
+    private ArrayList<Integer> highscores = new ArrayList<Integer>();
     private CheckBox tBox;
     private OnClickListener checkBoxListener;
     private CountDownTimer countDown;
     private TextView textX, textY, textZ, time_textView, textView, highscore_textView;
     private Sensor mySensor;
     private SensorManager SM;
-    private  int score, scoreSpot;
+    private  int score, scoreSpot, record;
     private  boolean left, right;
     private boolean timer = false;
     private boolean gameOver = false;
@@ -39,6 +39,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tBox = (CheckBox) findViewById(R.id.timetrial_checkBox);
+
+        Global.context=getApplicationContext();
+        final Button listenButton = (Button) findViewById(R.id.recieveButton);
+        listenButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                mp.startListening();
+                textView = (TextView) findViewById(R.id.MpHighScore);
+                textView.setText(Global.recievedMessageStr);
+            }
+        });
 
         checkBoxListener = new OnClickListener() {
             MediaPlayer vibes = MediaPlayer.create(MainActivity.this, R.raw.tripvibesrickdickert);
@@ -75,31 +86,42 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     countDown = new CountDownTimer(30000, 1000) {
 
                     public void onTick(long millisUntilFinished) {
-                        time_textView.setText("seconds remaining: " + millisUntilFinished / 1000);
+                        time_textView.setText("Seconds remaining: " + millisUntilFinished / 1000);
                     }
 
                     public void onFinish() {
                         time_textView.setText("Time UP!");
                         gameOver = true;
 
-
-
+                        highscores.add(score);
                         highscore_textView = (TextView) findViewById(R.id.highscore_textView);
-                        highscore_textView.setText( scoreSpot + ": " + score);
+                        int i = 0;
+                        while(highscores.size() > i) {
+                            if(record < highscores.get(i))
+                            {
+                                record = highscores.get(i);
+                                MediaPlayer coin = MediaPlayer.create(MainActivity.this, R.raw.coin);
+                                coin.start();
 
-
+                            }
+                            highscore_textView.setText(record + "");
+                            i++;
+                        }
                         if(score > 50) {
-
+                            MediaPlayer cheering = MediaPlayer.create(MainActivity.this, R.raw.cheering);
+                            cheering.start();
                         }
                         else if(score > 40) {
-
+                            MediaPlayer applause = MediaPlayer.create(MainActivity.this, R.raw.applause);
+                            applause.start();
                         }
                         else if(score > 30) {
-
-                        }
-                        else if(score > 20) {
                             MediaPlayer woohoo = MediaPlayer.create(MainActivity.this, R.raw.woohoo);
                             woohoo.start();
+                        }
+                        else if(score > 20) {
+                            MediaPlayer jollylaugh = MediaPlayer.create(MainActivity.this, R.raw.jollylaugh);
+                            jollylaugh.start();
                         }
                         else if(score > 10) {
                             MediaPlayer laugh = MediaPlayer.create(MainActivity.this, R.raw.laugh);
@@ -129,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //Assign textviews
         textX = (TextView) findViewById(R.id.textX);
         textY = (TextView) findViewById(R.id.textY);
-        textZ = (TextView) findViewById(R.id.textZ);
         time_textView = (TextView) findViewById(R.id.time_textView);
     }
 
@@ -148,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 scoreSound();
             }
 
-            if (event.values[0] < 1 && changedLeft == true) {
+            if (event.values[0] < -5 && changedLeft == true) {
                 right = true;
                 left = false;
                 changedRight = true;
@@ -165,24 +186,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void scoreSound()
     {
         if(score > 50) {
-            MediaPlayer gunshot = MediaPlayer.create(MainActivity.this, R.raw.gunshot);
-            gunshot.start();
+            MediaPlayer shotgun = MediaPlayer.create(MainActivity.this, R.raw.shotgun);
+            shotgun.start();
         }
         else if(score > 40) {
             MediaPlayer gunshot = MediaPlayer.create(MainActivity.this, R.raw.gunshot);
             gunshot.start();
         }
         else if(score > 30) {
-            MediaPlayer gunshot = MediaPlayer.create(MainActivity.this, R.raw.gunshot);
-            gunshot.start();
-        }
-        else if(score > 20) {
             MediaPlayer guncock = MediaPlayer.create(MainActivity.this, R.raw.guncock);
             guncock.start();
         }
-        else if(score > 10) {
+        else if(score > 20) {
             MediaPlayer punch = MediaPlayer.create(MainActivity.this, R.raw.punch);
             punch.start();
+        }
+        else if(score > 10) {
+            MediaPlayer error = MediaPlayer.create(MainActivity.this, R.raw.error);
+            error.start();
         }
         else {
             MediaPlayer point = MediaPlayer.create(MainActivity.this, R.raw.ding);
